@@ -1,0 +1,63 @@
+app-id: io.github.sourcegit_scm.sourcegit
+runtime: org.freedesktop.Sdk
+runtime-version: '26.08'
+sdk: org.freedesktop.Sdk
+command: sourcegit
+finish-args:
+  - --device=dri
+  - --socket=x11
+  - --share=ipc
+  - --share=network
+  - --socket=ssh-auth
+  - --socket=gpg-agent
+  - --filesystem=~/.sourcegit:create
+  - --filesystem=home
+modules:
+  - name: sourcegit
+    buildsystem: simple
+    sources:
+      - type: archive
+        url: https://github.com/sourcegit-scm/sourcegit/releases/download/v2026.21/sourcegit-2026.21-1.x86_64.rpm
+        sha256: e8a9998d9b30ad0bd792324c07fdd81ea57d884cfcd74352424b9c6972df37aa
+        only-arches:
+          - x86_64
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/sourcegit-scm/sourcegit/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: '"https://github.com/sourcegit-scm/sourcegit/releases/download/v" + $version + "/sourcegit-" + $version + "-1.x86_64.rpm"'
+          is-main-source: true
+      - type: archive
+        url: https://github.com/sourcegit-scm/sourcegit/releases/download/v2026.21/sourcegit-2026.21-1.aarch64.rpm
+        sha256: 7b34a1ef8530b7f647002855139cc97b45a17a97040f3f2dd1eca8f0048dd6ba
+        only-arches:
+          - aarch64
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/sourcegit-scm/sourcegit/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: '"https://github.com/sourcegit-scm/sourcegit/releases/download/v" + $version + "/sourcegit-" + $version + "-1.aarch64.rpm"'
+      - type: file
+        url: https://raw.githubusercontent.com/sourcegit-scm/sourcegit/v2026.21/build/resources/flatpak/sourcegit.desktop
+        sha256: 5d2a84431157a73527d59198235ef753ba72bb0fcabcaa5470e3ce892f17f7fa
+        dest-filename: io.github.sourcegit_scm.sourcegit.desktop
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/sourcegit-scm/sourcegit/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: '"https://raw.githubusercontent.com/sourcegit-scm/sourcegit/v" + $version + "/build/resources/flatpak/sourcegit.desktop"'
+      - type: file
+        url: https://raw.githubusercontent.com/sourcegit-scm/sourcegit/v2026.21/build/resources/flatpak/sourcegit.metainfo.xml
+        sha256: af24d7a9251129d19fcf97f16150c17f0d5f10b91a8157d97229ffc30b70746e
+        dest-filename: io.github.sourcegit_scm.sourcegit.metainfo.xml
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/sourcegit-scm/sourcegit/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: '"https://raw.githubusercontent.com/sourcegit-scm/sourcegit/v" + $version + "/build/resources/flatpak/sourcegit.metainfo.xml"'
+    build-commands:
+      - mkdir -p ${FLATPAK_DEST}/bin
+      - cp -r sourcegit/* ${FLATPAK_DEST}/bin
+      - install -D -m644 share/icons/sourcegit.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png
+      - install -D -m644 -t ${FLATPAK_DEST}/share/applications/ ${FLATPAK_ID}.desktop
+      - install -D -m644 -t ${FLATPAK_DEST}/share/metainfo/ ${FLATPAK_ID}.metainfo.xml
